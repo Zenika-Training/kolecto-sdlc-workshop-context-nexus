@@ -25,7 +25,7 @@ function parseArgs(argv) {
   return a;
 }
 
-const git = (nexus, args) => execFileSync('git', ['-C', nexus, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1 << 24 });
+const git = (nexus, args) => execFileSync('git', ['-c', 'color.ui=never', '-c', 'color.diff=never', '-C', nexus, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 1 << 24 });
 const safe = (fn, fallback) => { try { return fn(); } catch { return fallback; } };
 
 // Most recent commit where `path` had `version: <v>` in its frontmatter.
@@ -53,10 +53,12 @@ function show(nexus, path, from, consumers, starter) {
   if (consumers.length) console.log(`   pinned by: ${consumers.join(', ')}`);
   if (!commit) { console.log(`   (no commit found at version ${from}: showing the last change)`); }
   const diff = safe(() => commit ? git(nexus, ['diff', commit, 'HEAD', '--', path]) : git(nexus, ['log', '-p', '-1', '--', path]), '');
-  console.log(diff.split('\n').filter(l => /^[+-](?![+-])/.test(l) && !/^[+-](version|last-validated):/.test(l)).slice(0, 60).join('\n') || '   (no textual change)');
+  const changed = diff.split('\n').filter(l => /^[+-]/.test(l) && !/^(\+\+\+|---) /.test(l));
+  console.log(changed.filter(l => !/^[+-](version|last-validated):/.test(l)).slice(0, 60).join('\n') || '   (no textual change)');
 
-  // Identifiers in backticks that only appear on removed lines: likely renamed or removed fields.
-  const ids = side => new Set([...diff.split('\n').filter(l => l.startsWith(side) && !l.startsWith(side + side)).join('\n').matchAll(/`([A-Za-z_][\w.]*)`/g)].map(m => m[1]));
+  // Identifiers (in backticks, or JSON keys) that only appear on removed lines: likely renamed or removed fields.
+  // Change notes (quoted lines) mention old names on purpose: they do not count as "still there".
+  const ids = side => new Set([...changed.filter(l => l.startsWith(side) && !l.startsWith(side + '>')).join('\n').matchAll(/`([a-z]\w*[A-Z]\w*)`|"([A-Za-z_]\w*)":/g)].map(m => m[1] || m[2]));
   const gone = [...ids('-')].filter(x => !ids('+').has(x));
   if (gone.length && starter) {
     console.log(`\n   Removed or renamed: ${gone.join(', ')}. Mentioned in your starter:`);
