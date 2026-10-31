@@ -40,15 +40,17 @@ function assemble(squad, artifacts) {
 
   const systemPrompt = [...artifacts.values()].filter(a =>
     a.meta['consumption-mode'] === 'system-prompt' && (!squadOf(a.path) || squadOf(a.path) === squad));
-  const rag = [...artifacts.values()].filter(a => a.meta['consumption-mode'] === 'rag' && !squadOf(a.path));
   const consumed = new Map();
   for (const a of own) for (const ref of a.meta.consumes || []) {
     const [path, pinned] = ref.split('@');
     if (squadOf(path) !== squad) consumed.set(path, pinned);
   }
+  // `rag` artefacts are never inlined, even when consumed: they are listed, to be read on demand.
+  const isRag = a => a.meta['consumption-mode'] === 'rag';
+  const rag = [...artifacts.values()].filter(a => isRag(a) && (!squadOf(a.path) || consumed.has(a.path)));
   const injected = [
-    ...own.filter(a => a.meta['consumption-mode'] !== 'system-prompt'),
-    ...[...consumed.keys()].map(p => artifacts.get(p)).filter(Boolean).filter(a => !systemPrompt.includes(a)),
+    ...own.filter(a => !['system-prompt', 'rag'].includes(a.meta['consumption-mode'])),
+    ...[...consumed.keys()].map(p => artifacts.get(p)).filter(Boolean).filter(a => !systemPrompt.includes(a) && !isRag(a)),
     // The programme's mission context (brief, rules, decisions) is injected from Discover on,
     // before the squad has written anything: it is the first thing the agent must know.
     ...[...artifacts.values()].filter(a => a.meta.register === 'knowledge' && a.meta.level === 'programme' && a.meta['consumption-mode'] === 'context-injection'),
@@ -84,7 +86,7 @@ ${section('Rules and contracts that always apply (system prompt)', brief.systemP
 ${section('Mission context (context injection)', brief.injected)}
 ## Knowledge to look up on demand (simulated RAG)
 
-${brief.rag.map(a => `- \`${a.path}\` (v${a.meta.version})`).join('\n')}
+${brief.rag.map(a => `- \`../context-nexus/${a.path}\` (v${a.meta.version})`).join('\n')}
 `;
 }
 

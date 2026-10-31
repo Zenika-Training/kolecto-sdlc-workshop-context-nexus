@@ -6,7 +6,7 @@ owner: facilitation
 status: active
 version: 1.0.0
 last-validated: 2026-11-16
-consumption-mode: context-injection
+consumption-mode: rag
 consumes: [programme/payment-reminders/knowledge/business-rules.md@1.0.0]
 consumers: [squad-a-policy, squad-b-outreach]
 exception-to: null

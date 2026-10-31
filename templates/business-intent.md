@@ -7,7 +7,7 @@ status: draft
 version: 1.0.0
 last-validated: <YYYY-MM-DD>
 consumption-mode: context-injection
-consumes: [programme/payment-reminders/knowledge/brief.md@1.0.0, programme/payment-reminders/knowledge/business-rules.md@1.0.0, programme/payment-reminders/knowledge/decisions.md@1.0.0]
+consumes: [programme/payment-reminders/knowledge/brief.md@1.0.0, programme/payment-reminders/knowledge/decisions.md@1.0.0]
 consumers: []
 exception-to: null
 exception-approved-by: null
