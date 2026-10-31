@@ -1,0 +1,13 @@
+{
+  "id": "01-fees-v2",
+  "title": "Late-payment fees start at the firm step, listed separately",
+  "say": "Head of Receivables: \"Legal just reviewed the pilot. The €40 recovery indemnity and the late interest must apply from the second reminder, the firm one, not only at the formal notice. And the customer must see them as two separate lines.\"",
+  "announce": "business-rules and reference-cases move to 2.0.0. Squad A must change decideReminder and publish reminder-decision 2.0.0 (feeMinor becomes fees[]). Squad B goes stale at once (reference cases) and again when A publishes 2.0.0.",
+  "commitMessage": "facilitation: business-rules 2.0.0 and reference-cases 2.0.0, fees from the firm step (Head of Receivables, legal review)",
+  "changes": [
+    { "artifact": "programme/payment-reminders/knowledge/business-rules.md", "newVersion": "2.0.0", "replaceBody": "business-rules-v2.md" },
+    { "artifact": "programme/payment-reminders/contracts/reference-cases.md", "newVersion": "2.0.0", "replaceBody": "reference-cases-v2.md",
+      "set": { "consumes": "[programme/payment-reminders/knowledge/business-rules.md@2.0.0]" } }
+  ],
+  "newFiles": []
+}
