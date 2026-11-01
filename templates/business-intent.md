@@ -17,7 +17,7 @@ exception-approved-by: null
 
 > Five short answers, before any solution. Every claim carries one of these four source tags:
 > - **[Nexus: path]**: a fact, rule or decision found in the Context Nexus;
-> - **[Head of Receivables, date]**: the business's ambition, horizon or priority. Their decisions: go and ask;
+> - **[Head of Receivables, date]**: the business's ambition, horizon or priority, dated the day they answered (not the dataset's day). Their decisions: go and ask;
 > - **[Squad decision]**: what your squad chooses and signs (committed threshold, owner, what you won't do);
 > - **[To confirm: who can answer]**: what nobody has yet. Never invent it.
 

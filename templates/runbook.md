@@ -15,18 +15,10 @@ exception-approved-by: null
 
 # Runbook · <service> · G4 Released and Observable
 
-## Owner
-<Who is called first, and their backup.>
+> Five lines, one per heading. Someone on call reads it in 30 seconds.
 
-## Flag
-<Flag name, current state, who may switch it, link to `flags-journal.md`.>
-
-## What we watch
-<Signal (from /metrics or the events), normal value, alert threshold.>
-
-## If it goes wrong
-| Symptom | Check | Action |
-|---|---|---|
-
-## Rollback
-<How to switch off in under one minute, and who decides.>
+**Owner:** <who is called first, and their backup>
+**Flag:** <flag name, who may switch it; trace in `flags-journal.md`>
+**Watch:** <one signal from /metrics or the events, its normal value, the alert threshold>
+**If it goes wrong:** <first check, then first action>
+**Rollback:** <switch the flag off with `npm run flag -- <name> off --reason "…"`: who decides, how fast>
