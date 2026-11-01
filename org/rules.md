@@ -25,3 +25,4 @@ These rules apply to every team, every agent, every task. A lower level (program
 | ORG-05 | The agent never sets an intent, a spec or a contract to `active`, and never signs a gate. It proposes; a named human decides. |
 | ORG-06 | Never build on a `stale` artefact. Re-read what changed, update, re-pin, then a human sets it back to `active`. |
 | ORG-07 | A squad writes only in its own folder of the Context Nexus. A disagreement with another squad's contract is settled by talking to that squad. |
+| ORG-08 | Existing code owned by another team (Core Billing, `src/billing/`) is reused, not modified. A needed change goes to its owners as a change request. Nothing new is built on a `@deprecated` symbol. |
