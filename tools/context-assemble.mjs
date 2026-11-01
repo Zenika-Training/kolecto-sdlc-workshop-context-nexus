@@ -6,15 +6,17 @@
 //   node tools/context-assemble.mjs --squad squad-a-policy --out ../starter/.context/brief.md
 //   node tools/context-assemble.mjs --squad squad-a-policy --mark-stale     # flag the squad's outdated artefacts as stale
 //   node tools/context-assemble.mjs --squad squad-a-policy --check          # exit 1 if anything is stale (used by gates)
+//   node tools/context-assemble.mjs --squad squad-a-policy --pull           # pull the others' work first (npm run context, gates)
 //   node tools/context-assemble.mjs --all [--mark-stale]                    # facilitator view of the whole Nexus
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, relative, dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { DEFAULT_NEXUS, loadNexus, squadOf, checkPins, setStatus } from './lib/nexus.mjs';
 
 function parseArgs(argv) {
-  const args = { squad: null, out: null, markStale: false, check: false, all: false, nexus: null };
+  const args = { squad: null, out: null, markStale: false, check: false, all: false, nexus: null, pull: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--squad') args.squad = argv[++i];
@@ -22,6 +24,7 @@ function parseArgs(argv) {
     else if (a === '--nexus') args.nexus = argv[++i];
     else if (a === '--mark-stale') args.markStale = true;
     else if (a === '--check') args.check = true;
+    else if (a === '--pull') args.pull = true;
     else if (a === '--all') args.all = true;
     else if (a === '--help' || a === '-h') args.help = true;
   }
@@ -119,14 +122,27 @@ function markStale(pinsList, hint) {
     }
 }
 
+// Without a pull, a squad reads its own clone and sees "up to date" after the other squad or the business changed.
+// A failed pull (no network, conflict) never blocks: it says so and assembles what is there.
+function pull(root) {
+  const git = args => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 30000 });
+  try { if (!git(['remote']).trim()) return; } catch { return; }
+  try { git(['pull', '--rebase', '--autostash', '--quiet']); }
+  catch (e) {
+    try { git(['rebase', '--abort']); } catch { /* no rebase in progress */ }
+    console.log(`⚠ Could not pull the Context Nexus (${String(e.stderr || e.message).split('\n')[0].trim()}): showing your local copy.`);
+  }
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help || (!args.squad && !args.all)) {
-    console.log('Usage: node tools/context-assemble.mjs --squad <squad> [--out <file>] [--mark-stale] [--check] [--nexus <dir>]\n' +
+    console.log('Usage: node tools/context-assemble.mjs --squad <squad> [--out <file>] [--mark-stale] [--check] [--pull] [--nexus <dir>]\n' +
                 '       node tools/context-assemble.mjs --all [--mark-stale] [--check]');
     process.exit(args.help ? 0 : 2);
   }
   const root = resolve(args.nexus || DEFAULT_NEXUS);
+  if (args.pull) pull(root);
   const artifacts = loadNexus(root);
 
   if (args.all) {

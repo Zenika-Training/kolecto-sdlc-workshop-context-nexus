@@ -17,7 +17,8 @@ function parseArgs(argv) {
   const a = {};
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
-    if (k === '-m' || k === '--message') a.message = argv[++i];
+    // Several -m are joined into paragraphs, as git does: the first one stays the subject.
+    if (k === '-m' || k === '--message') a.message = a.message ? `${a.message}\n\n${argv[++i]}` : argv[++i];
     else if (k === '--squad') a.squad = argv[++i];
     else if (k === '--starter') a.starter = argv[++i];
     else if (k === '--nexus') a.nexus = argv[++i];
@@ -58,7 +59,8 @@ async function main() {
   // 2. Frontmatter hygiene (warnings, never blocking)
   for (const f of mine.filter(f => f.path.endsWith('.md') && existsSync(join(nexus, f.path)))) {
     const fm = parseFrontmatter(readFileSync(join(nexus, f.path), 'utf8'));
-    if (!fm) { if (!/journal/.test(f.path)) console.log(`⚠ ${f.path}: no frontmatter (id, version, status, owner…).`); continue; }
+    // Spec Kit working files (intent/specs/<feature>/plan.md…) travel without frontmatter, for the next driver.
+    if (!fm) { if (!/journal|\/intent\/specs\/[^/]+\//.test(f.path)) console.log(`⚠ ${f.path}: no frontmatter (id, version, status, owner…).`); continue; }
     if (/^</.test(String(fm.meta.owner || ''))) console.log(`⚠ ${f.path}: owner not filled in yet.`);
     if (fm.meta.status === 'draft' && ['contracts', 'intent'].includes(fm.meta.register)) console.log(`⚠ ${f.path}: still draft (a human must review it and set it to active before the gate).`);
     if (fm.meta.status === 'stale') console.log(`⚠ ${f.path}: still stale: read the change, update the pin, set it back to active.`);
