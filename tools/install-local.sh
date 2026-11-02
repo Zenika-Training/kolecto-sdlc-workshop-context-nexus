@@ -5,7 +5,7 @@
 set -euo pipefail
 
 SQUAD="${1:-}"
-ORG="${ORG:-https://github.com/zenika-dev}"
+ORG="${ORG:-https://github.com/zenika-training}"
 DIR="${HACKATHON_DIR:-$HOME/kolecto-hackathon}"
 case "$SQUAD" in squad-a-policy|squad-b-outreach) ;; *) echo "Usage: … | bash -s -- squad-a-policy|squad-b-outreach"; exit 2;; esac
 
