@@ -53,7 +53,7 @@ function buildState(ctx) {
     };
   });
 
-  // Contract chain: programme rules → reference cases → A's decision → B's plan/events.
+  // Contract chain: programme rules → reference cases → each squad's published contract, in config order (A → B → C).
   const node = (path, label) => {
     const a = artifacts.get(path);
     return { path, label, version: a?.meta.version || '—', status: a?.meta.status || 'missing', issues: a ? checkPins(a, artifacts).length : 0 };
@@ -61,8 +61,7 @@ function buildState(ctx) {
   const chain = [
     node('programme/payment-reminders/knowledge/business-rules.md', 'Business rules'),
     node('programme/payment-reminders/contracts/reference-cases.md', 'Reference cases'),
-    node('teams/squad-a-policy/contracts/reminder-decision.md', 'A · reminder-decision'),
-    node('teams/squad-b-outreach/contracts/reminder-events.md', 'B · reminder-events'),
+    ...Object.values(config.squads).flatMap(s => (s.publishes || []).map(p => node(p, `${s.number} · ${p.split('/').pop().replace(/\.md$/, '')}`))),
   ];
 
   const feed = safe(() => git(nexus, ['log', '-15', '--date=iso-strict', '--pretty=format:%cd%x09%an%x09%s']).split('\n').filter(Boolean)

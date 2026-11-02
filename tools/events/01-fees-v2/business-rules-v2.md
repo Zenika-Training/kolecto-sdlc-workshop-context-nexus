@@ -1,6 +1,6 @@
 # Business rules · payment reminders
 
-> **Changed in 2.0.0** (Head of Receivables, after a legal review): RR-05 and RR-08. Fees now start at the firm step and are listed separately.
+> **Changed in 2.0.0** (Head of Receivables, after a legal review): RR-05, RR-08 and RR-13. Fees now start at the firm step, are listed separately, and are reported by kind.
 
 > Simplified for the workshop. The real legal rules are richer; these are the ones the business validated for the pilot.
 
@@ -32,6 +32,15 @@
 
 - **RR-08 · Amount due (changed in 2.0.0).** The reminder shows each fee on its own line: `Fixed recovery indemnity` for `indemnity`, `Late-payment interest` for `interest`, in the order of `fees`. `amountDueMinor` = outstanding + all fees. Fee labels stay in English in both languages for the pilot: the legal team has not validated a French wording yet.
 - **RR-09 · Events.** Planning a reminder emits `reminder_scheduled` (invoiceId, step, sendAt). Sending emits `reminder_sent`; a payment received after a reminder emits `payment_after_reminder`. These events measure the pilot.
+
+## Measuring (squad C)
+
+The pilot is measured over a period [`from`, `to`] (both `YYYY-MM-DD`, included), from squad B's planned reminders and the payments.
+
+- **RR-10 · Reminded invoices.** An invoice counts **once** if at least one of its planned reminders (`send: true`) has a `sendAt` day in the period. Its reminder day is the earliest such day (the Paris date of `sendAt`). `byStep` counts the invoices by the step of that first reminder.
+- **RR-11 · Paid within 7 days.** Share of reminded invoices with a payment dated 0 to 7 days after their reminder day, as a percentage with one decimal (Core Billing's `paidWithinRate`). `null` when no invoice was reminded.
+- **RR-12 · Payment delay.** Average number of days from `dueDate` to the last payment, over the reminded invoices fully paid on or before `to`, with one decimal (Core Billing's `averagePaymentDelay`). `null` when none is fully paid. This is the number G1 promises to lower.
+- **RR-13 · Fees scheduled (changed in 2.0.0).** Finance wants the indemnity and the interest apart: `feesScheduled` = `{ indemnityMinor, interestMinor, totalMinor }`, summed over every fee line of every planned reminder in the period. A line counts as indemnity or interest by its label (RR-08). Replaces `feesScheduledMinor`. Minor units, currency EUR.
 
 ## Exact expected outputs
 

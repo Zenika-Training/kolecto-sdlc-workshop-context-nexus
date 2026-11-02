@@ -21,7 +21,7 @@
   header h1 { font-size: 26px; flex: 1; }
   header .clock { font: 700 30px 'Nunito', sans-serif; letter-spacing: 1px; }
   #banner { display: none; background: var(--grad); color: var(--white); padding: 12px 24px; font-weight: 600; }
-  main { padding: 20px 24px; display: grid; gap: 20px; grid-template-columns: 1fr 1fr; }
+  main { padding: 20px 24px; display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
   .card { background: var(--white); border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
   .wide { grid-column: 1 / -1; }
   .squad h2 { font-size: 24px; display: flex; gap: 10px; align-items: baseline; }
@@ -66,6 +66,7 @@
 <main>
   <section class="card squad" id="squad-0"></section>
   <section class="card squad" id="squad-1"></section>
+  <section class="card squad" id="squad-2"></section>
   <section class="card wide"><h3>Contract chain</h3><p class="slice">Who reads whom, at which version. Amber: a consumer is pinned to an outdated version. Red: just changed.</p><div class="chain" id="chain"></div></section>
   <section class="card wide" id="keeper">
     <h3>Gate keeper</h3>
@@ -114,7 +115,7 @@ function render() {
     const mins = state.event.appliedAt ? Math.max(0, Math.round((Date.now() - Date.parse(state.event.appliedAt)) / 60000)) : null;
     const open = state.squads.filter(s => s.stale).map(s => s.label);
     b.style.display = 'block';
-    b.textContent = `Business change: ${state.event.title}${mins !== null ? ` · ${mins} min ago` : ''} · ${open.length ? 'still realigning: ' + open.join(', ') : 'both squads realigned ✓'}`;
+    b.textContent = `Business change: ${state.event.title}${mins !== null ? ` · ${mins} min ago` : ''} · ${open.length ? 'still realigning: ' + open.join(', ') : 'every squad realigned ✓'}`;
   } else b.style.display = 'none';
   if (state.keeper) {
     $('keeper').style.display = 'block';

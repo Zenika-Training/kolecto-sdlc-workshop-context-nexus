@@ -8,7 +8,7 @@ version: 0.1.0
 last-validated: 2026-11-01
 consumption-mode: context-injection
 consumes: [teams/squad-a-policy/contracts/reminder-decision.md@0.1.0, programme/payment-reminders/knowledge/business-rules.md@1.0.0]
-consumers: [programme-kpi]
+consumers: [squad-c-insight]
 exception-to: null
 exception-approved-by: null
 ---

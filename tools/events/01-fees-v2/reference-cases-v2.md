@@ -1,15 +1,16 @@
 # Reference cases · payment reminders
 
-> Owned by the programme (facilitation). These are the business's acceptance examples: the reference tests of both
+> Owned by the programme (facilitation). These are the business's acceptance examples: the reference tests of the three
 > starters run them against your code. **Do not edit**: if a case looks wrong, raise it with the Head of Receivables.
 > Each case gives the exact input and the exact expected output. Dates are `YYYY-MM-DD`; instants are ISO 8601 with the Paris offset.
 
-> **Changed in 2.0.0** (decision of the Head of Receivables, see `business-rules.md` RR-05): fees now apply from the **firm** step, and the decision lists them separately in `fees: [{ kind, amountMinor }]` instead of a single `feeMinor`.
+> **Changed in 2.0.0** (decision of the Head of Receivables, see `business-rules.md` RR-05): fees now apply from the **firm** step, and the decision lists them separately in `fees: [{ kind, amountMinor }]` instead of a single `feeMinor`. Squad B’s plans list one fee line per kind, and squad C reports the fees by kind (RR-13).
 
 ## How the reference tests use this file
 
 - `decideReminder` cases → squad A's `decideReminder(input)` must return `expected` (deep equality).
 - `planReminder` cases → squad B's `planReminder(input)` must return `expected` (deep equality).
+- `measurePilot` cases → squad C's `measurePilot(input)` must return `expected` (deep equality). Their `plans` are squad B's plans, built from squad A's decisions.
 
 ## Cases
 
@@ -1121,6 +1122,672 @@
         "invoiceId": "inv_0022",
         "send": false,
         "reason": "OPTED_OUT"
+      }
+    }
+  ],
+  "measurePilot": [
+    {
+      "name": "one formal reminder, paid 5 days later",
+      "input": {
+        "plans": [
+          {
+            "invoiceId": "inv_0005",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c03@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "formal-en",
+            "subject": "Formal notice: invoice F-2026-0005 is 46 days overdue",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 1890
+              }
+            ],
+            "amountDueMinor": 155890,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0005",
+              "step": "formal",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          }
+        ],
+        "invoices": [
+          {
+            "id": "inv_0005",
+            "number": "F-2026-0005",
+            "customerId": "C03",
+            "issueDate": "2026-09-01",
+            "dueDate": "2026-10-01",
+            "totalMinor": 250000,
+            "currency": "EUR",
+            "disputed": false
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_0003",
+            "invoiceId": "inv_0005",
+            "date": "2026-10-12",
+            "amountMinor": 100000
+          },
+          {
+            "id": "pay_p001",
+            "invoiceId": "inv_0005",
+            "date": "2026-11-21",
+            "amountMinor": 150000
+          }
+        ],
+        "from": "2026-11-01",
+        "to": "2026-11-30"
+      },
+      "expected": {
+        "from": "2026-11-01",
+        "to": "2026-11-30",
+        "remindedInvoices": 1,
+        "byStep": {
+          "friendly": 0,
+          "firm": 0,
+          "formal": 1
+        },
+        "paidWithin7DaysPercent": 100,
+        "averagePaymentDelayDays": 51,
+        "feesScheduled": {
+          "indemnityMinor": 4000,
+          "interestMinor": 1890,
+          "totalMinor": 5890
+        },
+        "currency": "EUR"
+      }
+    },
+    {
+      "name": "a payment on day 7 counts, on day 8 it does not",
+      "input": {
+        "plans": [
+          {
+            "invoiceId": "inv_0002",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c01@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "firm-fr",
+            "subject": "Deuxième relance : la facture F-2026-0002 est en retard de 16 jours",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 200
+              }
+            ],
+            "amountDueMinor": 49800,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0002",
+              "step": "firm",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0006",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c03@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "friendly-en",
+            "subject": "Friendly reminder: invoice F-2026-0006 is 12 days overdue",
+            "feeLines": [],
+            "amountDueMinor": 99000,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0006",
+              "step": "friendly",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          }
+        ],
+        "invoices": [
+          {
+            "id": "inv_0002",
+            "number": "F-2026-0002",
+            "customerId": "C01",
+            "issueDate": "2026-10-01",
+            "dueDate": "2026-10-31",
+            "totalMinor": 45600,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0006",
+            "number": "F-2026-0006",
+            "customerId": "C03",
+            "issueDate": "2026-10-05",
+            "dueDate": "2026-11-04",
+            "totalMinor": 99000,
+            "currency": "EUR",
+            "disputed": false
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_p001",
+            "invoiceId": "inv_0002",
+            "date": "2026-11-23",
+            "amountMinor": 45600
+          },
+          {
+            "id": "pay_p002",
+            "invoiceId": "inv_0006",
+            "date": "2026-11-24",
+            "amountMinor": 99000
+          }
+        ],
+        "from": "2026-11-16",
+        "to": "2026-11-30"
+      },
+      "expected": {
+        "from": "2026-11-16",
+        "to": "2026-11-30",
+        "remindedInvoices": 2,
+        "byStep": {
+          "friendly": 1,
+          "firm": 1,
+          "formal": 0
+        },
+        "paidWithin7DaysPercent": 50,
+        "averagePaymentDelayDays": 21.5,
+        "feesScheduled": {
+          "indemnityMinor": 4000,
+          "interestMinor": 200,
+          "totalMinor": 4200
+        },
+        "currency": "EUR"
+      }
+    },
+    {
+      "name": "an invoice reminded twice counts once, from its first reminder",
+      "input": {
+        "plans": [
+          {
+            "invoiceId": "inv_0012",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c06@example.test",
+            "sendAt": "2026-11-20T10:00:00+01:00",
+            "template": "friendly-fr",
+            "subject": "Petit rappel : la facture F-2026-0012 est en retard de 3 jours",
+            "feeLines": [],
+            "amountDueMinor": 54000,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0012",
+              "step": "friendly",
+              "sendAt": "2026-11-20T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0012",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c06@example.test",
+            "sendAt": "2026-12-07T10:00:00+01:00",
+            "template": "firm-fr",
+            "subject": "Deuxième relance : la facture F-2026-0012 est en retard de 20 jours",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 296
+              }
+            ],
+            "amountDueMinor": 58296,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0012",
+              "step": "firm",
+              "sendAt": "2026-12-07T10:00:00+01:00"
+            }
+          }
+        ],
+        "invoices": [
+          {
+            "id": "inv_0012",
+            "number": "F-2026-0012",
+            "customerId": "C06",
+            "issueDate": "2026-10-18",
+            "dueDate": "2026-11-17",
+            "totalMinor": 54000,
+            "currency": "EUR",
+            "disputed": false
+          }
+        ],
+        "payments": [],
+        "from": "2026-11-01",
+        "to": "2026-12-31"
+      },
+      "expected": {
+        "from": "2026-11-01",
+        "to": "2026-12-31",
+        "remindedInvoices": 1,
+        "byStep": {
+          "friendly": 1,
+          "firm": 0,
+          "formal": 0
+        },
+        "paidWithin7DaysPercent": 0,
+        "averagePaymentDelayDays": null,
+        "feesScheduled": {
+          "indemnityMinor": 4000,
+          "interestMinor": 296,
+          "totalMinor": 4296
+        },
+        "currency": "EUR"
+      }
+    },
+    {
+      "name": "a reminder outside the period is ignored",
+      "input": {
+        "plans": [
+          {
+            "invoiceId": "inv_0019",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c10@example.test",
+            "sendAt": "2026-11-02T10:00:00+01:00",
+            "template": "firm-en",
+            "subject": "Second reminder: invoice F-2026-0019 is 28 days overdue",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 1381
+              }
+            ],
+            "amountDueMinor": 185381,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0019",
+              "step": "firm",
+              "sendAt": "2026-11-02T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0025",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c05@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "friendly-en",
+            "subject": "Friendly reminder: invoice F-2026-0025 is 8 days overdue",
+            "feeLines": [],
+            "amountDueMinor": 39000,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0025",
+              "step": "friendly",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          }
+        ],
+        "invoices": [
+          {
+            "id": "inv_0019",
+            "number": "F-2026-0019",
+            "customerId": "C10",
+            "issueDate": "2026-09-05",
+            "dueDate": "2026-10-05",
+            "totalMinor": 330000,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0025",
+            "number": "F-2026-0025",
+            "customerId": "C05",
+            "issueDate": "2026-10-09",
+            "dueDate": "2026-11-08",
+            "totalMinor": 39000,
+            "currency": "EUR",
+            "disputed": false
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_0007",
+            "invoiceId": "inv_0019",
+            "date": "2026-10-30",
+            "amountMinor": 150000
+          }
+        ],
+        "from": "2026-11-03",
+        "to": "2026-11-30"
+      },
+      "expected": {
+        "from": "2026-11-03",
+        "to": "2026-11-30",
+        "remindedInvoices": 1,
+        "byStep": {
+          "friendly": 1,
+          "firm": 0,
+          "formal": 0
+        },
+        "paidWithin7DaysPercent": 0,
+        "averagePaymentDelayDays": null,
+        "feesScheduled": {
+          "indemnityMinor": 0,
+          "interestMinor": 0,
+          "totalMinor": 0
+        },
+        "currency": "EUR"
+      }
+    },
+    {
+      "name": "nothing sent in the period: nothing to measure",
+      "input": {
+        "plans": [
+          {
+            "invoiceId": "inv_0022",
+            "send": false,
+            "reason": "OPTED_OUT"
+          },
+          {
+            "invoiceId": "inv_0013",
+            "send": false,
+            "reason": "BELOW_THRESHOLD"
+          }
+        ],
+        "invoices": [
+          {
+            "id": "inv_0022",
+            "number": "F-2026-0022",
+            "customerId": "C12",
+            "issueDate": "2026-09-20",
+            "dueDate": "2026-10-20",
+            "totalMinor": 140000,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0013",
+            "number": "F-2026-0013",
+            "customerId": "C07",
+            "issueDate": "2026-10-03",
+            "dueDate": "2026-11-02",
+            "totalMinor": 31200,
+            "currency": "EUR",
+            "disputed": false
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_0006",
+            "invoiceId": "inv_0013",
+            "date": "2026-11-10",
+            "amountMinor": 31000
+          }
+        ],
+        "from": "2026-11-01",
+        "to": "2026-11-30"
+      },
+      "expected": {
+        "from": "2026-11-01",
+        "to": "2026-11-30",
+        "remindedInvoices": 0,
+        "byStep": {
+          "friendly": 0,
+          "firm": 0,
+          "formal": 0
+        },
+        "paidWithin7DaysPercent": null,
+        "averagePaymentDelayDays": null,
+        "feesScheduled": {
+          "indemnityMinor": 0,
+          "interestMinor": 0,
+          "totalMinor": 0
+        },
+        "currency": "EUR"
+      }
+    },
+    {
+      "name": "the pilot so far: every step, a partial payment, a late payment",
+      "input": {
+        "plans": [
+          {
+            "invoiceId": "inv_0012",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c06@example.test",
+            "sendAt": "2026-11-20T10:00:00+01:00",
+            "template": "friendly-fr",
+            "subject": "Petit rappel : la facture F-2026-0012 est en retard de 3 jours",
+            "feeLines": [],
+            "amountDueMinor": 54000,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0012",
+              "step": "friendly",
+              "sendAt": "2026-11-20T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0002",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c01@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "firm-fr",
+            "subject": "Deuxième relance : la facture F-2026-0002 est en retard de 16 jours",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 200
+              }
+            ],
+            "amountDueMinor": 49800,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0002",
+              "step": "firm",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0027",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c07@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "formal-en",
+            "subject": "Formal notice: invoice F-2026-0027 is 35 days overdue",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 455
+              }
+            ],
+            "amountDueMinor": 51955,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0027",
+              "step": "formal",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0038",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c10@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "formal-en",
+            "subject": "Formal notice: invoice F-2026-0038 is 63 days overdue",
+            "feeLines": [
+              {
+                "label": "Fixed recovery indemnity",
+                "amountMinor": 4000
+              },
+              {
+                "label": "Late-payment interest",
+                "amountMinor": 1726
+              }
+            ],
+            "amountDueMinor": 105726,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0038",
+              "step": "formal",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          },
+          {
+            "invoiceId": "inv_0020",
+            "send": true,
+            "channel": "email",
+            "to": "accounts+c10@example.test",
+            "sendAt": "2026-11-16T10:00:00+01:00",
+            "template": "friendly-en",
+            "subject": "Friendly reminder: invoice F-2026-0020 is 3 days overdue",
+            "feeLines": [],
+            "amountDueMinor": 66000,
+            "currency": "EUR",
+            "event": {
+              "name": "reminder_scheduled",
+              "invoiceId": "inv_0020",
+              "step": "friendly",
+              "sendAt": "2026-11-16T10:00:00+01:00"
+            }
+          }
+        ],
+        "invoices": [
+          {
+            "id": "inv_0012",
+            "number": "F-2026-0012",
+            "customerId": "C06",
+            "issueDate": "2026-10-18",
+            "dueDate": "2026-11-17",
+            "totalMinor": 54000,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0002",
+            "number": "F-2026-0002",
+            "customerId": "C01",
+            "issueDate": "2026-10-01",
+            "dueDate": "2026-10-31",
+            "totalMinor": 45600,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0027",
+            "number": "F-2026-0027",
+            "customerId": "C07",
+            "issueDate": "2026-09-12",
+            "dueDate": "2026-10-12",
+            "totalMinor": 47500,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0038",
+            "number": "F-2026-0038",
+            "customerId": "C10",
+            "issueDate": "2026-08-15",
+            "dueDate": "2026-09-14",
+            "totalMinor": 260000,
+            "currency": "EUR",
+            "disputed": false
+          },
+          {
+            "id": "inv_0020",
+            "number": "F-2026-0020",
+            "customerId": "C10",
+            "issueDate": "2026-10-14",
+            "dueDate": "2026-11-13",
+            "totalMinor": 66000,
+            "currency": "EUR",
+            "disputed": false
+          }
+        ],
+        "payments": [
+          {
+            "id": "pay_0009",
+            "invoiceId": "inv_0027",
+            "date": "2026-11-19",
+            "amountMinor": 20000
+          },
+          {
+            "id": "pay_0013",
+            "invoiceId": "inv_0038",
+            "date": "2026-10-10",
+            "amountMinor": 100000
+          },
+          {
+            "id": "pay_0014",
+            "invoiceId": "inv_0038",
+            "date": "2026-11-02",
+            "amountMinor": 60000
+          },
+          {
+            "id": "pay_p001",
+            "invoiceId": "inv_0020",
+            "date": "2026-11-30",
+            "amountMinor": 66000
+          }
+        ],
+        "from": "2026-11-01",
+        "to": "2026-11-30"
+      },
+      "expected": {
+        "from": "2026-11-01",
+        "to": "2026-11-30",
+        "remindedInvoices": 5,
+        "byStep": {
+          "friendly": 2,
+          "firm": 1,
+          "formal": 2
+        },
+        "paidWithin7DaysPercent": 20,
+        "averagePaymentDelayDays": 17,
+        "feesScheduled": {
+          "indemnityMinor": 12000,
+          "interestMinor": 2381,
+          "totalMinor": 14381
+        },
+        "currency": "EUR"
       }
     }
   ]

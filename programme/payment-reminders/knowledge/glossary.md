@@ -8,7 +8,7 @@ version: 1.0.0
 last-validated: 2026-11-16
 consumption-mode: rag
 consumes: []
-consumers: [squad-a-policy, squad-b-outreach]
+consumers: [squad-a-policy, squad-b-outreach, squad-c-insight]
 exception-to: null
 exception-approved-by: null
 ---
@@ -24,3 +24,6 @@ exception-approved-by: null
 - **DSO** (days sales outstanding): the average number of days customers take to pay.
 - **Opt-out**: a customer who asked not to receive reminders.
 - **Disputed invoice**: the customer contests the invoice; no reminder until resolved.
+- **Pilot period**: the days over which squad C measures the pilot, `from` and `to` included.
+- **Reminded invoice**: an invoice with at least one reminder planned in the period; counted once, from its first reminder.
+- **KPI** (key performance indicator): a number that says whether the pilot keeps its G1 promise, such as the share of reminded invoices paid within 7 days.

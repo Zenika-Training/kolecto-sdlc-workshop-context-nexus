@@ -8,7 +8,7 @@ version: 1.0.0
 last-validated: 2026-11-16
 consumption-mode: context-injection
 consumes: []
-consumers: [squad-a-policy, squad-b-outreach]
+consumers: [squad-a-policy, squad-b-outreach, squad-c-insight]
 exception-to: null
 exception-approved-by: null
 ---
@@ -44,6 +44,15 @@ exception-approved-by: null
 
 - **RR-08 · Amount due.** The reminder shows each fee on its own line (label `Late-payment fees` for `feeMinor`), and `amountDueMinor` = outstanding + all fees. Fee labels stay in English in both languages for the pilot: the legal team has not validated a French wording yet.
 - **RR-09 · Events.** Planning a reminder emits `reminder_scheduled` (invoiceId, step, sendAt). Sending emits `reminder_sent`; a payment received after a reminder emits `payment_after_reminder`. These events measure the pilot.
+
+## Measuring (squad C)
+
+The pilot is measured over a period [`from`, `to`] (both `YYYY-MM-DD`, included), from squad B's planned reminders and the payments.
+
+- **RR-10 · Reminded invoices.** An invoice counts **once** if at least one of its planned reminders (`send: true`) has a `sendAt` day in the period. Its reminder day is the earliest such day (the Paris date of `sendAt`). `byStep` counts the invoices by the step of that first reminder.
+- **RR-11 · Paid within 7 days.** Share of reminded invoices with a payment dated 0 to 7 days after their reminder day, as a percentage with one decimal (Core Billing's `paidWithinRate`). `null` when no invoice was reminded.
+- **RR-12 · Payment delay.** Average number of days from `dueDate` to the last payment, over the reminded invoices fully paid on or before `to`, with one decimal (Core Billing's `averagePaymentDelay`). `null` when none is fully paid. This is the number G1 promises to lower.
+- **RR-13 · Fees scheduled.** `feesScheduledMinor` = sum of the amounts of every fee line of every planned reminder in the period (not only the first one per invoice). Minor units, currency EUR.
 
 ## Exact expected outputs
 

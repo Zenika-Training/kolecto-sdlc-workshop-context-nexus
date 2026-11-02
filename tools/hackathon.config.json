@@ -1,13 +1,29 @@
 {
-  "_": "Kolecto edition of the AI-augmented PDLC hackathon. Two squads, gates on demand, one scripted business change.",
+  "_": "Kolecto edition of the AI-augmented PDLC hackathon. Three squads (A → B → C contract chain), gates on demand, one scripted business change.",
   "title": "Smart payment reminders",
   "timezone": "Europe/Paris",
   "event": "01-fees-v2",
   "gates": {
-    "G1": { "name": "Ready to Spec", "phase": "Discover", "keeper": "product" },
-    "G2": { "name": "Ready to Build", "phase": "Design", "keeper": "tech" },
-    "G3": { "name": "Ready to Release", "phase": "Develop", "keeper": "tech" },
-    "G4": { "name": "Released and Observable", "phase": "Deploy", "keeper": "run" }
+    "G1": {
+      "name": "Ready to Spec",
+      "phase": "Discover",
+      "keeper": "product"
+    },
+    "G2": {
+      "name": "Ready to Build",
+      "phase": "Design",
+      "keeper": "tech"
+    },
+    "G3": {
+      "name": "Ready to Release",
+      "phase": "Develop",
+      "keeper": "tech"
+    },
+    "G4": {
+      "name": "Released and Observable",
+      "phase": "Deploy",
+      "keeper": "run"
+    }
   },
   "hats": {
     "Specification Engineer": "Turns the need into a spec the AI can follow: holds the pen on intent, spec and contract.",
@@ -23,7 +39,9 @@
       "slice": "Decide whether an invoice gets a reminder today, at which step, with which fees",
       "port": 3001,
       "flag": "reminders_policy_decision",
-      "publishes": ["teams/squad-a-policy/contracts/reminder-decision.md"],
+      "publishes": [
+        "teams/squad-a-policy/contracts/reminder-decision.md"
+      ],
       "specifySeed": "decideReminder decides, for one invoice and one day, whether a payment reminder is due, at which step (friendly, firm, formal) and with which late-payment fees, following the programme business rules.",
       "demoPrompt": "Write a TypeScript function that decides whether an unpaid invoice should get a payment reminder today, and returns the reminder level and the late fees.",
       "demoWatch": "Without context the agent invents thresholds (7/14/30 days?), fee rules, field names and floats for money. With context it cites RR-01..05, uses minor units and the reference cases."
@@ -34,10 +52,25 @@
       "slice": "Plan the reminder: when to send it, which template and subject, what amount due, which event",
       "port": 3002,
       "flag": "reminders_outreach_plan",
-      "publishes": ["teams/squad-b-outreach/contracts/reminder-events.md"],
+      "publishes": [
+        "teams/squad-b-outreach/contracts/reminder-events.md"
+      ],
       "specifySeed": "planReminder turns a reminder decision published by squad A into a planned e-mail: send time inside the business sending window, template and subject in the customer's language, fee lines, amount due, and the reminder_scheduled event.",
       "demoPrompt": "Write a TypeScript function that schedules a payment reminder e-mail for an overdue invoice and builds its subject line.",
       "demoWatch": "Without context the agent picks its own sending hours, ignores public holidays and time zones, and invents the decision's fields. With context it follows RR-06..09 and the reminder-decision contract."
+    },
+    "squad-c-insight": {
+      "number": "C",
+      "label": "Insight",
+      "slice": "Measure the pilot: which invoices were reminded, how many were paid within 7 days, the payment delay, the fees scheduled",
+      "port": 3003,
+      "flag": "reminders_pilot_kpi",
+      "publishes": [
+        "teams/squad-c-insight/contracts/pilot-kpi.md"
+      ],
+      "specifySeed": "measurePilot turns squad B's planned reminders and the payments into the pilot's figures for a period: reminded invoices by step, share paid within 7 days, average payment delay, fees scheduled, following the programme business rules.",
+      "demoPrompt": "Write a TypeScript function that computes, for a period, how many unpaid invoices got a payment reminder and what share of them were paid within a week.",
+      "demoWatch": "Without context the agent counts every reminder instead of every invoice, picks its own window and rounding, and invents the plan's fields. With context it follows RR-10..13, reuses Core Billing's paidWithinRate and averagePaymentDelay, and the reminder-events contract."
     }
   }
 }

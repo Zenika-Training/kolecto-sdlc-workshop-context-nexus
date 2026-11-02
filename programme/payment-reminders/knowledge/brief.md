@@ -8,7 +8,7 @@ version: 1.0.0
 last-validated: 2026-11-16
 consumption-mode: context-injection
 consumes: []
-consumers: [squad-a-policy, squad-b-outreach]
+consumers: [squad-a-policy, squad-b-outreach, squad-c-insight]
 exception-to: null
 exception-approved-by: null
 ---
@@ -36,11 +36,12 @@ exception-approved-by: null
 
 Ask the Head of Receivables. Everything else is in the Context Nexus, or is your squad's decision.
 
-## One feature, two squads
+## One feature, three squads
 
 | Squad | Builds | Publishes | Consumes |
 |---|---|---|---|
 | **A · Policy** | Decides whether an invoice gets a reminder today, which step, and which fees: `decideReminder` | `reminder-decision` contract | business rules, reference cases |
 | **B · Outreach** | Plans the reminder: when to send it, which template, what amount due: `planReminder` | `reminder-events` contract | `reminder-decision`, business rules, reference cases |
+| **C · Insight** | Measures the pilot from the planned reminders and the payments: reminded invoices, paid within 7 days, payment delay, fees: `measurePilot` | `pilot-kpi` contract | `reminder-events`, business rules, reference cases |
 
-Neither squad can finish alone: Outreach cannot plan without Policy's decision, and Policy's decision is worthless until it reaches a customer.
+No squad can finish alone: Outreach cannot plan without Policy's decision, Insight cannot measure without Outreach's plans, and nobody knows whether the pilot works until Insight's figures exist. A change upstream travels down the chain A → B → C.

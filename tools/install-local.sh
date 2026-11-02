@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Local install (macOS / Linux) for the AI-augmented PDLC hackathon, without admin rights.
-#   curl -fsSL <raw url of this file> | bash -s -- squad-a-policy      (or squad-b-outreach)
+#   curl -fsSL <raw url of this file> | bash -s -- squad-a-policy      (or squad-b-outreach, squad-c-insight)
 # Clones the Context Nexus and the squad's starter into ~/kolecto-hackathon/, then runs the starter's setup script.
 set -euo pipefail
 
 SQUAD="${1:-}"
 ORG="${ORG:-https://github.com/Zenika-Training}"
 DIR="${HACKATHON_DIR:-$HOME/kolecto-hackathon}"
-case "$SQUAD" in squad-a-policy|squad-b-outreach) ;; *) echo "Usage: … | bash -s -- squad-a-policy|squad-b-outreach"; exit 2;; esac
+case "$SQUAD" in squad-a-policy|squad-b-outreach|squad-c-insight) ;; *) echo "Usage: … | bash -s -- squad-a-policy|squad-b-outreach|squad-c-insight"; exit 2;; esac
 
 command -v git >/dev/null || { echo "✗ Git is required"; exit 1; }
 command -v node >/dev/null || { echo "✗ Node.js ≥ 22.12 is required (https://nodejs.org)"; exit 1; }

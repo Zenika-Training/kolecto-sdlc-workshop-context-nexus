@@ -105,7 +105,7 @@ async function main() {
       git(nexus, ['push', '--quiet']);
       const head = git(nexus, ['rev-parse', '--short', 'HEAD']).trim();
       console.log(`✓ Published to the Context Nexus (${head})${attempt > 1 ? `, after ${attempt} attempts: someone was publishing at the same time` : ''}.`);
-      console.log('  The other squad gets your changes with /nexus (or: npm run context).');
+      console.log('  The other squads get your changes with /nexus (or: npm run context).');
       return 0;
     } catch (e) {
       if (attempt === 6) { console.log(`✗ Push refused 6 times: ${errText(e).split('\n')[0]}\n  Your commit is kept locally. Check the network, then run the same command again.`); return 1; }

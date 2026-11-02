@@ -8,7 +8,7 @@ version: 1.0.0
 last-validated: 2026-11-16
 consumption-mode: system-prompt
 consumes: []
-consumers: [squad-a-policy, squad-b-outreach]
+consumers: [squad-a-policy, squad-b-outreach, squad-c-insight]
 exception-to: null
 exception-approved-by: null
 ---
