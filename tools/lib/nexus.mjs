@@ -43,7 +43,8 @@ export function loadNexus(root = DEFAULT_NEXUS) {
     for (const file of walk(dir)) {
       const text = readFileSync(file, 'utf8');
       const fm = parseFrontmatter(text);
-      if (!fm) continue;
+      // An artefact has an id: Spec Kit's working files (tasks.md has a bare `description:` header) are not artefacts.
+      if (!fm || !fm.meta.id) continue;
       const path = relative(root, file).split('\\').join('/');
       artifacts.set(path, { path, file, text, ...fm });
     }

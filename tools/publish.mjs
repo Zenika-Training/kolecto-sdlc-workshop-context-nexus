@@ -74,7 +74,7 @@ async function main() {
 
   // 3. Commit this scope and nothing else
   // Any squad prefix the author already typed (squad-a:, squad-a-policy:) is dropped: the tool adds the full one.
-  const message = args.message ? `${squad}: ${args.message.replace(/^squad[-\w]*\s*:\s*/i, '')}` : `${squad}: publish ${mine.length} file(s)`;
+  const message = args.message ? `${squad}: ${args.message.replace(/^squad[ -]?[-\w]*\s*:\s*/i, '')}` : `${squad}: publish ${mine.length} file(s)`;
   const retryLock = async fn => {
     for (let i = 1; ; i++) {
       try { return fn(); } catch (e) {
