@@ -42,7 +42,7 @@ exception-approved-by: null
 | firm | `Second reminder: invoice {invoiceNumber} is {daysOverdue} days overdue` | `Deuxième relance : la facture {invoiceNumber} est en retard de {daysOverdue} jours` |
 | formal | `Formal notice: invoice {invoiceNumber} is {daysOverdue} days overdue` | `Mise en demeure : la facture {invoiceNumber} est en retard de {daysOverdue} jours` |
 
-- **RR-08 · Amount due.** The reminder shows each fee on its own line (label `Late-payment fees` for `feeMinor`), and `amountDueMinor` = outstanding + all fees.
+- **RR-08 · Amount due.** The reminder shows each fee on its own line (label `Late-payment fees` for `feeMinor`), and `amountDueMinor` = outstanding + all fees. Fee labels stay in English in both languages for the pilot: the legal team has not validated a French wording yet.
 - **RR-09 · Events.** Planning a reminder emits `reminder_scheduled` (invoiceId, step, sendAt). Sending emits `reminder_sent`; a payment received after a reminder emits `payment_after_reminder`. These events measure the pilot.
 
 ## Exact expected outputs

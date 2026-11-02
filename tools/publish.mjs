@@ -52,9 +52,14 @@ async function main() {
     console.log(`⚠ Changed outside ${scope}/, NOT published (a squad only writes in its own folder):`);
     for (const f of others.slice(0, 8)) console.log(`    ${f.path}`);
   }
-  if (!mine.length) { console.log(`Nothing to publish in ${scope}/.${others.length ? '' : ' Everything is already published.'}`); return 0; }
-  console.log(`About to publish to the Context Nexus (${scope}/):`);
-  for (const f of mine) console.log(`    ${f.code.trim() || '?'}  ${f.path}`);
+  // A commit left unpushed (--no-push, network down) is not published yet: push it.
+  let unpushed = 0;
+  try { unpushed = Number(git(nexus, ['rev-list', '--count', '@{u}..HEAD', '--', scope]).trim()); } catch { /* no upstream */ }
+  if (!mine.length && !unpushed) { console.log(`Nothing to publish in ${scope}/.${others.length ? '' : ' Everything is already published.'}`); return 0; }
+  if (mine.length) {
+    console.log(`About to publish to the Context Nexus (${scope}/):`);
+    for (const f of mine) console.log(`    ${f.code.trim() || '?'}  ${f.path}`);
+  } else console.log(`${unpushed} commit(s) of ${scope}/ not pushed yet: pushing them.`);
 
   // 2. Frontmatter hygiene (warnings, never blocking)
   for (const f of mine.filter(f => f.path.endsWith('.md') && existsSync(join(nexus, f.path)))) {
@@ -68,7 +73,8 @@ async function main() {
   if (args.dry) { console.log('(dry run: nothing published)'); return 0; }
 
   // 3. Commit this scope and nothing else
-  const message = args.message ? `${squad}: ${args.message.replace(new RegExp('^' + squad + '\\s*:\\s*'), '')}` : `${squad}: publish ${mine.length} file(s)`;
+  // Any squad prefix the author already typed (squad-a:, squad-a-policy:) is dropped: the tool adds the full one.
+  const message = args.message ? `${squad}: ${args.message.replace(/^squad[-\w]*\s*:\s*/i, '')}` : `${squad}: publish ${mine.length} file(s)`;
   const retryLock = async fn => {
     for (let i = 1; ; i++) {
       try { return fn(); } catch (e) {
@@ -77,11 +83,11 @@ async function main() {
       }
     }
   };
-  try {
+  if (mine.length) try {
     await retryLock(() => git(nexus, ['add', '--', scope]));
     await retryLock(() => git(nexus, ['commit', '-m', message, '--', scope]));
   } catch (e) { console.log(`✗ Cannot commit: ${errText(e).split('\n')[0]}\n  If Git asks who you are: git config --global user.name "First Last"`); return 1; }
-  console.log(`✓ Commit: ${message}`);
+  if (mine.length) console.log(`✓ Commit: ${message}`);
   if (args.noPush || !hasRemote(nexus)) { console.log('✓ Published locally (no remote configured, or --no-push).'); return 0; }
 
   // 4. Pull, then push; retry if someone published at the same moment

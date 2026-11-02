@@ -3,9 +3,9 @@ id: squad-a-policy/reminder-decision
 register: contracts
 level: team
 owner: squad-a-policy
-status: active
+status: draft
 version: 0.1.0
-last-validated: 2026-11-16
+last-validated: 2026-11-01
 consumption-mode: context-injection
 consumes: [programme/payment-reminders/knowledge/business-rules.md@1.0.0]
 consumers: [squad-b-outreach]

@@ -102,13 +102,16 @@ function printBrief(squad, brief) {
   if (brief.excluded.length) console.log(`  excluded (exception not approved):\n${brief.excluded.map(line).join('\n')}`);
 }
 
+// BREAKING only says the major version moved: /contract-diff shows whether a field the squad uses really changed.
+const note = i => (i.kind !== 'BREAKING' ? '' : String(i.pinned).startsWith('0.') ? '  (first stable version: v0 was a draft)' : '  (major version: read /contract-diff before re-pinning)');
+
 function reportPins(pinsList) {
   let stale = 0;
   for (const { a, issues } of pinsList) {
     if (issues.length === 0) continue;
     stale++;
     console.log(`\n✗ ${a.path} (v${a.meta.version}, ${a.meta.status}) depends on versions that changed:`);
-    for (const i of issues) console.log(`    ${i.kind.padEnd(14)} ${i.path}  pinned ${i.pinned} → current ${i.current ?? '—'}`);
+    for (const i of issues) console.log(`    ${i.kind.padEnd(14)} ${i.path}  pinned ${i.pinned} → current ${i.current ?? '—'}${note(i)}`);
   }
   if (stale === 0) console.log('\n✓ Every pinned dependency is up to date.');
   return stale;

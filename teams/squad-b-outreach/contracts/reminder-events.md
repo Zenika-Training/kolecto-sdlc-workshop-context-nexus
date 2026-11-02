@@ -3,9 +3,9 @@ id: squad-b-outreach/reminder-events
 register: contracts
 level: team
 owner: squad-b-outreach
-status: active
+status: draft
 version: 0.1.0
-last-validated: 2026-11-16
+last-validated: 2026-11-01
 consumption-mode: context-injection
 consumes: [teams/squad-a-policy/contracts/reminder-decision.md@0.1.0, programme/payment-reminders/knowledge/business-rules.md@1.0.0]
 consumers: [programme-kpi]

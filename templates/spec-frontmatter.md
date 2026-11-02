@@ -1,6 +1,6 @@
 # Frontmatter to paste on top of a Spec Kit spec published to the Nexus
 
-Copy `specs/001-<name>/spec.md` from your starter to `../context-nexus/teams/<squad>/intent/specs/<squad>-001.md`, and put this on top:
+`npm run spec:publish` in the starter writes this for you. By hand: copy `specs/001-<name>/spec.md` from your starter to `../context-nexus/teams/<squad>/intent/specs/<squad>-001.md`, and put this on top:
 
 ```yaml
 ---

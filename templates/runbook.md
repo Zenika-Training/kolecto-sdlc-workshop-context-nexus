@@ -21,4 +21,4 @@ exception-approved-by: null
 **Flag:** <flag name, who may switch it; trace in `flags-journal.md`>
 **Watch:** <one signal from /metrics or the events, its normal value, the alert threshold>
 **If it goes wrong:** <first check, then first action>
-**Rollback:** <switch the flag off with `npm run flag -- <name> off --reason "…"`: who decides, how fast>
+**Rollback:** <`npm run flag -- <name> off --reason "…"`, then `npm run deploy` (the service reads flags at start): who decides, how fast>
