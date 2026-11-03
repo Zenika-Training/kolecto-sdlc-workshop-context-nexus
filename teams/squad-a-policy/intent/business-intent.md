@@ -2,8 +2,8 @@
 id: squad-a-policy/business-intent
 register: intent
 level: team
-owner: <first.last of whoever owns this intent>
-status: draft
+owner: <sebastien.hug>
+status: active
 version: 1.0.0
 last-validated: 2026-11-03
 consumption-mode: context-injection
@@ -47,7 +47,7 @@ Our slice: for one invoice and one day, decide whether a reminder is due, at whi
 Business rules this intent relies on (unchanged, confirmed by the Head of Receivables on 2026-11-03):
 - Days overdue are counted from the invoice `dueDate`. [Head of Receivables, 2026-11-03] [Nexus: business-rules.md RR-01]
 - `friendly` from 3 days overdue, `firm` from 15 days, `formal` from 30 days. [Nexus: business-rules.md RR-04]
-- Fees only at `formal`: €40 recovery indemnity plus late interest at 10 % a year, pro rata of days overdue. Currency is EUR, not USD. [Nexus: business-rules.md RR-05]
+- Fees only at `formal`: the €40 recovery indemnity **plus** late-payment penalties (late interest at 10 % a year on the outstanding amount, pro rata of days overdue). The €40 is not the whole fee: the penalties come on top and grow each day. Currency is EUR, not USD. [Nexus: business-rules.md RR-05]
 - No reminder once the payment is recorded (outstanding ≤ 0, reason `PAID`). [Head of Receivables, 2026-11-03] [Nexus: business-rules.md RR-03]
 
 ## 5. Priority and owner
